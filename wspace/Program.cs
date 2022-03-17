@@ -1,4 +1,5 @@
 ﻿using System;
+using static wspace.Whitespace;
 
 namespace wspace
 {
@@ -6,7 +7,15 @@ namespace wspace
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            InitializeWhitespace("pushNumber");
+
+            for(int i = 0; i < 5; i++)
+            {
+                Stack.PushNumber(100);
+                IO.OutputNumber(true);
+            }
+
+            FinishProgram();
         }
     }
 }

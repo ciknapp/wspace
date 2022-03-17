@@ -30,17 +30,17 @@ namespace wspace
                     Directory.CreateDirectory($"{Directory.GetCurrentDirectory()}\\{GeneratedCodeFolderName}");
                 }
 
-                FullFileDir = $"{Directory.GetCurrentDirectory()}\\{GeneratedCodeFolderName}\\{name}";
+                FullFileDir = $"{Directory.GetCurrentDirectory()}\\{GeneratedCodeFolderName}\\{Name}";
             }
             else
             {
-                FullFileDir = $"{fileDir}\\{name}";
+                FullFileDir = $"{fileDir}\\{Name}";
             }
         }
 
         internal void Finish()
         {
-            FileContents += "\n\n\n";
+            FileContents += "[END]\n\n\n";
 
             File.WriteAllText(FullFileDir, FileContents);
         }
