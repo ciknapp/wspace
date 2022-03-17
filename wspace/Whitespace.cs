@@ -82,21 +82,116 @@ namespace wspace
 
                 wSFile.FileContents += $"[{(++commandCount)}]{IMP}{command}{(negative ? "\t" : " ")}{parameter}\n";
             }
+
+            internal static void DuplicateItem()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void CopyNthItem()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void SwapTopItems()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void DiscardItem()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void SlideNItems()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public static class Arithmetic
         {
             public const string IMP = "\t ";
+
+            internal static void Addition()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void Division()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void Modulo()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void Multiplication()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void Subtraction()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public static class Heap
         {
             public const string IMP = "\t\t";
+
+            internal static void Retrieve()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void Store()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public static class Flow
         {
             public const string IMP = "\n";
+
+            internal static void CallSubroutine()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void CreateLabel()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void EndProgram()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void EndSubroutine()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void JumpToLabel()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void JumpToLabelIfNegative()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void JumpToLabelIfZero()
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public static class IO
@@ -149,6 +244,16 @@ namespace wspace
                     Stack.PushNumber(10);
                     OutputCharacter();
                 }
+            }
+
+            internal static void ReadCharacter()
+            {
+                throw new NotImplementedException();
+            }
+
+            internal static void ReadNumber()
+            {
+                throw new NotImplementedException();
             }
         }
     }
