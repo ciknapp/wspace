@@ -7,13 +7,9 @@ namespace wspace
     {
         static void Main(string[] args)
         {
-            InitializeWhitespace("pushNumber");
+            InitializeWhitespace("pushString");
 
-            for(int i = 0; i < 5; i++)
-            {
-                Stack.PushNumber(100);
-                IO.OutputNumber(true);
-            }
+            IO.DisplayString("Hello, world!");
 
             FinishProgram();
         }

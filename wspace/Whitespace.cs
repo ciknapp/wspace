@@ -42,6 +42,26 @@ namespace wspace
         {
             public const string IMP = " ";
 
+            public static void PushString(string str)
+            {
+                AssertInitialized();
+
+                char[] reversed = str.ToCharArray();
+                Array.Reverse(reversed);
+
+                foreach(char character in reversed)
+                {
+                    PushCharacter(character);
+                }
+            }
+
+            public static void PushCharacter(char character)
+            {
+                AssertInitialized();
+
+                PushNumber(character);
+            }
+
             public static void PushNumber(int number)
             {
                 AssertInitialized();
@@ -105,6 +125,24 @@ namespace wspace
                 string command = "  ";
 
                 wSFile.FileContents += $"[{++commandCount}]{IMP}{command}";
+
+                if (withNewLine)
+                {
+                    Stack.PushNumber(10);
+                    OutputCharacter();
+                }
+            }
+
+            public static void DisplayString(string str, bool withNewLine = false)
+            {
+                AssertInitialized();
+
+                Stack.PushString(str);
+
+                foreach(char _ in str)
+                {
+                    OutputCharacter();
+                }
 
                 if (withNewLine)
                 {
