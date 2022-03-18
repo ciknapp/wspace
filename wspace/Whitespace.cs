@@ -8,7 +8,7 @@ namespace wspace
 {
     public static class Whitespace
     {
-        private static int commandCount = 0;
+        private static int commandCount = -1;
 
         public static bool IsInitialized { get => isInitialized; }
         private static bool isInitialized = false;
@@ -113,7 +113,7 @@ namespace wspace
 
                 bool negative = number < 0;
 
-                wSFile.FileContents += $"[{(++commandCount)}]{IMP}{command}{(negative ? "\t" : " ")}{parameter}\n";
+                wSFile.FileContents += $"[PushNumber][{(++commandCount)}]{IMP}{command}{(negative ? "\t" : " ")}{parameter}\n";
             }
 
             internal static void DuplicateItem()
@@ -122,7 +122,7 @@ namespace wspace
 
                 string command = "\n ";
 
-                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}";
+                WSFile.FileContents += $"[DuplicateItem][{++commandCount}]{IMP}{command}";
             }
 
             internal static void CopyNthItem(int locationInStack)
@@ -132,7 +132,7 @@ namespace wspace
                 string command = "\t ";
                 string parameter = getWsBitString(locationInStack);
 
-                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
+                WSFile.FileContents += $"[CopyNthItem][{++commandCount}]{IMP}{command}{parameter}\n";
             }
 
             internal static void SwapTopItems()
@@ -173,7 +173,7 @@ namespace wspace
                     Stack.PushNumber(left ?? 0);
                 }
 
-                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}";
+                WSFile.FileContents += $"[Addition][{++commandCount}]{IMP}{command}";
             }
 
             internal static void Division()
@@ -203,7 +203,7 @@ namespace wspace
 
                 string command = " \t";
 
-                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}";
+                WSFile.FileContents += $"[Subtraction][{++commandCount}]{IMP}{command}";
             }
         }
 
@@ -264,7 +264,7 @@ namespace wspace
                 string command = "  ";
                 string parameter = generateLabelString(labelName);
 
-                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
+                WSFile.FileContents += $"[CreateLabel]{IMP}{command}{parameter}\n";
             }
 
             internal static void EndProgram()
@@ -273,7 +273,7 @@ namespace wspace
 
                 string command = "\n\n";
 
-                WSFile.FileContents += $"[END]{IMP}{command}";
+                WSFile.FileContents += $"[EndProgram]{IMP}{command}";
             }
 
             internal static void EndSubroutine()
@@ -290,7 +290,7 @@ namespace wspace
                 string command = " \n";
                 string parameter = generateLabelString(labelName);
 
-                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
+                WSFile.FileContents += $"[JumpToLabel][{++commandCount}]{IMP}{command}{parameter}\n";
             }
 
             internal static void JumpToLabelIfNegative(string labelName)
@@ -300,7 +300,7 @@ namespace wspace
                 string command = "\t\t";
                 string parameter = generateLabelString(labelName);
 
-                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
+                WSFile.FileContents += $"[JumpToLabelIfNegative][{++commandCount}]{IMP}{command}{parameter}\n";
             }
 
             internal static void JumpToLabelIfZero(string labelName)
@@ -310,7 +310,7 @@ namespace wspace
                 string command = "\t ";
                 string parameter = generateLabelString(labelName);
 
-                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
+                WSFile.FileContents += $"[JumpToLabelIfZero][{++commandCount}]{IMP}{command}{parameter}\n";
             }
         }
 
@@ -328,7 +328,7 @@ namespace wspace
 
                 string command = " \t";
 
-                wSFile.FileContents += $"[{++commandCount}]{IMP}{command}";
+                wSFile.FileContents += $"[OutputNumber][{++commandCount}]{IMP}{command}";
 
                 if (withNewLine)
                 {
@@ -347,7 +347,7 @@ namespace wspace
 
                 string command = "  ";
 
-                wSFile.FileContents += $"[{++commandCount}]{IMP}{command}";
+                wSFile.FileContents += $"[OutputCharacter][{++commandCount}]{IMP}{command}";
 
                 if (withNewLine)
                 {
@@ -360,8 +360,8 @@ namespace wspace
             /// Pushes a string to the stack and then displays it.
             /// </summary>
             /// <param name="str">String to display</param>
-            /// <param name="withNewLine">If true, a new line is printed after the string. Defaults to false</param>
-            internal static void DisplayString(string str, bool withNewLine = false)
+            /// <param name="withNewLine">If true, a new line is printed after the string. Defaults to true</param>
+            internal static void DisplayString(string str, bool withNewLine = true)
             {
                 assertInitialized();
 
