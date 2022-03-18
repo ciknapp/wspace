@@ -7,7 +7,11 @@ namespace wspace
     {
         static void Main(string[] args)
         {
-            
+            InitializeWhitespace(name: "My Whitespace Code");
+
+            IO.DisplayString("Hello, Lisa!");
+
+            FinishProgram();
         }
     }
 }

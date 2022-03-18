@@ -16,20 +16,31 @@ namespace wspace
         public  static WSFile WSFile { get => wSFile; }
         private static WSFile wSFile;
 
-        public static void InitializeWhitespace(string name = "", string fileDir = "")
+        /// <summary>
+        /// Creates a WSFile to write the finished Whitespace code into. Extension will be ".ws".
+        /// </summary>
+        /// <param name="name">Name of the file (not including extension)</param>
+        /// <param name="fileDir">Directory of the file</param>
+        internal static void InitializeWhitespace(string name = "", string fileDir = "")
         {
             wSFile = new WSFile(name, fileDir);
 
             isInitialized = true;
         }
 
-        public static void FinishProgram()
+        /// <summary>
+        /// Writes the End Program code to the WSFile content and saves the file. Overwrites existing file with same name.
+        /// </summary>
+        internal static void FinishProgram()
         {
             wSFile.Finish();
 
             isInitialized = false;
         }
 
+        /// <summary>
+        /// Ensures that the WSFile has been initialized.
+        /// </summary>
         private static void AssertInitialized()
         {
             if (!IsInitialized)
@@ -38,11 +49,18 @@ namespace wspace
             }
         }
 
+        /// <summary>
+        /// Holds methods related to Stack Management.
+        /// </summary>
         public static class Stack
         {
             public const string IMP = " ";
 
-            public static void PushString(string str)
+            /// <summary>
+            /// Reverses a string and pushes each character onto the stack. Not meant to be used independently. DisplayString is the better option.
+            /// </summary>
+            /// <param name="str">String to push</param>
+            internal static void PushString(string str)
             {
                 AssertInitialized();
 
@@ -55,14 +73,18 @@ namespace wspace
                 }
             }
 
-            public static void PushCharacter(char character)
+            /// <summary>
+            /// Pushes a character onto the stack.
+            /// </summary>
+            /// <param name="character">Character to push</param>
+            internal static void PushCharacter(char character)
             {
                 AssertInitialized();
 
                 PushNumber(character);
             }
 
-            public static void PushNumber(int number)
+            internal static void PushNumber(int number)
             {
                 AssertInitialized();
 
@@ -198,7 +220,7 @@ namespace wspace
         {
             public const string IMP = "\t\n";
 
-            public static void OutputNumber(bool withNewLine = false)
+            internal static void OutputNumber(bool withNewLine = false)
             {
                 AssertInitialized();
 
@@ -213,7 +235,7 @@ namespace wspace
                 }
             }
 
-            public static void OutputCharacter(bool withNewLine = false)
+            internal static void OutputCharacter(bool withNewLine = false)
             {
                 AssertInitialized();
 
@@ -228,7 +250,7 @@ namespace wspace
                 }
             }
 
-            public static void DisplayString(string str, bool withNewLine = false)
+            internal static void DisplayString(string str, bool withNewLine = false)
             {
                 AssertInitialized();
 
