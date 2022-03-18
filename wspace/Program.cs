@@ -9,9 +9,26 @@ namespace wspace
         {
             InitializeWhitespace(name: "My Whitespace Code");
 
-            IO.DisplayString("Hello, Lisa!");
+            Stack.PushNumber(1);
+            Stack.PushNumber(1);
+            Arithmetic.Subtraction();
 
-            FinishProgram();
+            Flow.JumpToLabelIfZero("if true");
+            Flow.JumpToLabel("else");
+
+            Flow.CreateLabel("if true");
+            IO.DisplayString("True!!!");
+            Flow.JumpToLabel("end if");
+
+            Flow.CreateLabel("else");
+            IO.DisplayString("Oh no, it was false.... :(");
+            Flow.JumpToLabel("end if");
+
+            Flow.CreateLabel("end if");
+
+            Flow.EndProgram();
+
+            WriteCodeFile();
         }
     }
 }

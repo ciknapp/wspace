@@ -31,7 +31,7 @@ namespace wspace
         /// <summary>
         /// Writes the End Program code to the WSFile content and saves the file. Overwrites existing file with same name.
         /// </summary>
-        internal static void FinishProgram()
+        internal static void WriteCodeFile()
         {
             wSFile.Finish();
 
@@ -41,12 +41,28 @@ namespace wspace
         /// <summary>
         /// Ensures that the WSFile has been initialized.
         /// </summary>
-        private static void AssertInitialized()
+        private static void assertInitialized()
         {
             if (!IsInitialized)
             {
                 throw new Exception("Whitespace not initialized. Call InitializeWhitespace()");
             }
+        }
+
+        private static string getWsBitString(int number)
+        {
+            string bitString = string.Empty;
+
+            char[] binaryCharArray = Convert.ToString(number, 2).ToCharArray();
+
+            for (int bit = 0; bit < binaryCharArray.Length; bit++)
+            {
+                char currentBit = binaryCharArray[bit];
+
+                bitString += currentBit == '1' ? "\t" : " ";
+            }
+
+            return bitString;
         }
 
         /// <summary>
@@ -62,7 +78,7 @@ namespace wspace
             /// <param name="str">String to push</param>
             internal static void PushString(string str)
             {
-                AssertInitialized();
+                assertInitialized();
 
                 char[] reversed = str.ToCharArray();
                 Array.Reverse(reversed);
@@ -79,26 +95,21 @@ namespace wspace
             /// <param name="character">Character to push</param>
             internal static void PushCharacter(char character)
             {
-                AssertInitialized();
+                assertInitialized();
 
                 PushNumber(character);
             }
 
+            /// <summary>
+            /// Pushes an integer number onto the stack.
+            /// </summary>
+            /// <param name="number">Integer number to push onto the stack</param>
             internal static void PushNumber(int number)
             {
-                AssertInitialized();
+                assertInitialized();
 
                 string command = " ";
-                string parameter = string.Empty;
-
-                char[] binaryCharArray = Convert.ToString(number, 2).ToCharArray();
-
-                for (int bit = 0; bit < binaryCharArray.Length; bit++)
-                {
-                    char currentBit = binaryCharArray[bit];
-
-                    parameter += currentBit == '1' ? "\t" : " ";
-                }
+                string parameter = getWsBitString(number);
 
                 bool negative = number < 0;
 
@@ -107,26 +118,41 @@ namespace wspace
 
             internal static void DuplicateItem()
             {
-                throw new NotImplementedException();
+                assertInitialized();
+
+                string command = "\n ";
+
+                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}";
             }
 
-            internal static void CopyNthItem()
+            internal static void CopyNthItem(int locationInStack)
             {
-                throw new NotImplementedException();
+                assertInitialized();
+
+                string command = "\t ";
+                string parameter = getWsBitString(locationInStack);
+
+                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
             }
 
             internal static void SwapTopItems()
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
 
             internal static void DiscardItem()
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
 
-            internal static void SlideNItems()
+            internal static void SlideNItems(int numberOfItems)
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
         }
@@ -135,29 +161,49 @@ namespace wspace
         {
             public const string IMP = "\t ";
 
-            internal static void Addition()
+            internal static void Addition(int? left = null, int? right = null)
             {
-                throw new NotImplementedException();
+                assertInitialized();
+
+                string command = "  ";
+
+                if(left != null && right != null)
+                {
+                    Stack.PushNumber(right ?? 0);
+                    Stack.PushNumber(left ?? 0);
+                }
+
+                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}";
             }
 
             internal static void Division()
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
 
             internal static void Modulo()
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
 
             internal static void Multiplication()
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
 
             internal static void Subtraction()
             {
-                throw new NotImplementedException();
+                assertInitialized();
+
+                string command = " \t";
+
+                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}";
             }
         }
 
@@ -165,13 +211,17 @@ namespace wspace
         {
             public const string IMP = "\t\t";
 
-            internal static void Retrieve()
+            internal static void Retrieve(int address)
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
 
-            internal static void Store()
+            internal static void Store(int address, int value)
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
         }
@@ -180,49 +230,101 @@ namespace wspace
         {
             public const string IMP = "\n";
 
-            internal static void CallSubroutine()
+            public static Dictionary<string, string> Labels = new Dictionary<string, string>();
+
+            private static string generateLabelString(string labelName)
             {
+                char[] nameCharArray = labelName.ToCharArray();
+                string nameBinaryString = string.Empty;
+
+                foreach (char character in nameCharArray)
+                {
+                    string binary = Convert.ToString(character, 2);
+
+                    foreach (char bit in binary)
+                    {
+                        nameBinaryString += $"{(bit == '1' ? '\t' : ' ')}";
+                    }
+                }
+
+                return nameBinaryString;
+            }
+
+            internal static void CallSubroutine(string labelName)
+            {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
 
-            internal static void CreateLabel()
+            internal static void CreateLabel(string labelName)
             {
-                throw new NotImplementedException();
+                assertInitialized();
+
+                string command = "  ";
+                string parameter = generateLabelString(labelName);
+
+                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
             }
 
             internal static void EndProgram()
             {
-                throw new NotImplementedException();
+                assertInitialized();
+
+                string command = "\n\n";
+
+                WSFile.FileContents += $"[END]{IMP}{command}";
             }
 
             internal static void EndSubroutine()
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
 
-            internal static void JumpToLabel()
+            internal static void JumpToLabel(string labelName)
             {
-                throw new NotImplementedException();
+                assertInitialized();
+
+                string command = " \n";
+                string parameter = generateLabelString(labelName);
+
+                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
             }
 
-            internal static void JumpToLabelIfNegative()
+            internal static void JumpToLabelIfNegative(string labelName)
             {
-                throw new NotImplementedException();
+                assertInitialized();
+
+                string command = "\t\t";
+                string parameter = generateLabelString(labelName);
+
+                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
             }
 
-            internal static void JumpToLabelIfZero()
+            internal static void JumpToLabelIfZero(string labelName)
             {
-                throw new NotImplementedException();
+                assertInitialized();
+
+                string command = "\t ";
+                string parameter = generateLabelString(labelName);
+
+                WSFile.FileContents += $"[{++commandCount}]{IMP}{command}{parameter}\n";
             }
         }
 
         public static class IO
         {
             public const string IMP = "\t\n";
-
-            internal static void OutputNumber(bool withNewLine = false)
+            
+            /// <summary>
+            /// Displays a number from the top of the stack through stdout. Pops the top number off of the stack.
+            /// </summary>
+            /// <param name="withNewLine">If true, prints a new line after printing the number</param>
+            internal static void OutputNumber(bool withNewLine = true)
             {
-                AssertInitialized();
+                assertInitialized();
 
                 string command = " \t";
 
@@ -231,13 +333,17 @@ namespace wspace
                 if (withNewLine)
                 {
                     Stack.PushNumber(10);
-                    OutputCharacter();
+                    OutputCharacter(false);
                 }
             }
-
-            internal static void OutputCharacter(bool withNewLine = false)
+            
+            /// <summary>
+            /// Displays a character from the number off the top of the stack. Pops the number off the stack.
+            /// </summary>
+            /// <param name="withNewLine">If true, prints a new line after printing the character</param>
+            internal static void OutputCharacter(bool withNewLine = true)
             {
-                AssertInitialized();
+                assertInitialized();
 
                 string command = "  ";
 
@@ -246,35 +352,44 @@ namespace wspace
                 if (withNewLine)
                 {
                     Stack.PushNumber(10);
-                    OutputCharacter();
+                    OutputCharacter(false);
                 }
             }
 
+            /// <summary>
+            /// Pushes a string to the stack and then displays it.
+            /// </summary>
+            /// <param name="str">String to display</param>
+            /// <param name="withNewLine">If true, a new line is printed after the string. Defaults to false</param>
             internal static void DisplayString(string str, bool withNewLine = false)
             {
-                AssertInitialized();
+                assertInitialized();
 
                 Stack.PushString(str);
 
                 foreach(char _ in str)
                 {
-                    OutputCharacter();
+                    OutputCharacter(false);
                 }
 
                 if (withNewLine)
                 {
                     Stack.PushNumber(10);
-                    OutputCharacter();
+                    OutputCharacter(false);
                 }
             }
 
             internal static void ReadCharacter()
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
 
             internal static void ReadNumber()
             {
+                assertInitialized();
+
                 throw new NotImplementedException();
             }
         }

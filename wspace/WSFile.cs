@@ -40,8 +40,6 @@ namespace wspace
 
         internal void Finish()
         {
-            FileContents += "[END]\n\n\n";
-
             File.WriteAllText(FullFileDir, FileContents);
         }
 
