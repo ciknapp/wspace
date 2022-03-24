@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace wspace
@@ -15,6 +16,8 @@ namespace wspace
 
         public  static WSFile WSFile { get => wSFile; }
         private static WSFile wSFile;
+
+        private static Stack<int> SimStack = new Stack<int>();
 
         /// <summary>
         /// Creates a WSFile to write the finished Whitespace code into. Extension will be ".ws".
@@ -65,12 +68,112 @@ namespace wspace
             return bitString;
         }
 
+        public static void Parse(string code)
+        {
+            int commandNum = 0;
+            string category;
+            string imp;
+            string command;
+            string parameter;
+
+            code = Regex.Replace(code, "[^ \t\n]", "");
+
+            for(int i = 0; i < code.Length; i++)
+            {
+                category = imp = command = parameter = string.Empty;
+
+                if(code[i] == ' ')
+                {
+                    // Stack
+                    category = "Stack";
+                    imp = $"{code[i]}";
+
+                    i++;
+
+                    // Find command
+                    if(code[i] == ' ')
+                    {
+                        // Push number
+                        command = "Push Number";
+
+                        i++;
+
+                        // Get the parameter (read til newline)
+                        do
+                        {
+                            parameter += code[i].ToString();
+                            i++;
+                        } while (code[i] != '\n');
+
+                        // Successful parse, move on to next command.
+                        Console.WriteLine($"{category} {command} [{parameter}]");
+                        continue;
+                    }
+                    else if(code[i] == '\n')
+                    {
+                        switch(code[i + 1])
+                        {
+                            case ' ':
+                                // Duplicate
+                                break;
+                            case '\t':
+                                // Swap
+                                break;
+                            case '\n':
+                                // Discard
+                                break;
+                        }
+                    }
+                    else if(code[i] == '\t')
+                    {
+
+                    }
+                }
+                else if(code[i] == '\t')
+                {
+                    if(code[i + 1] == ' ')
+                    {
+                        // Math
+                        category = "Math";
+                        imp = $"{code[i]}{code[i + 1]}";
+                    }
+                    else if(code[i + 1] == '\t')
+                    {
+                        // Heap
+                        category = "Heap";
+                        imp = $"{code[i]}{code[i + 1]}";
+                    }
+                    else if(code[i + 1] == '\n')
+                    {
+                        // IO
+                        category = "IO";
+                        imp = $"{code[i]}{code[i + 1]}";
+                    }
+                }
+                else if(code[i] == '\n')
+                {
+                    // Flow control
+                    category = "Flow";
+                    imp = $"{code[i]}";
+                }
+                else
+                {
+                    // Not whitespace
+                }
+            }
+
+            Console.WriteLine("No syntax errors in file.");
+        }
+
         /// <summary>
         /// Holds methods related to Stack Management.
         /// </summary>
         public static class Stack
         {
             public const string IMP = " ";
+            public const string CMD_PUSHNUM = " ";
+            public const string CMD_DUPLICATE = "\n ";
+            public const string CMD_COPYNTH = "\t ";
 
             /// <summary>
             /// Reverses a string and pushes each character onto the stack. Not meant to be used independently. DisplayString is the better option.
@@ -108,31 +211,38 @@ namespace wspace
             {
                 assertInitialized();
 
-                string command = " ";
                 string parameter = getWsBitString(number);
 
                 bool negative = number < 0;
 
-                wSFile.FileContents += $"[PushNumber][{(++commandCount)}]{IMP}{command}{(negative ? "\t" : " ")}{parameter}\n";
+                SimStack.Push(number);
+
+                wSFile.FileContents += $"[PushNumber][{(++commandCount)}]{IMP}{CMD_PUSHNUM}{(negative ? "\t" : " ")}{parameter}\n";
             }
 
             internal static void DuplicateItem()
             {
                 assertInitialized();
 
-                string command = "\n ";
+                if(SimStack.TryPeek(out int stackNumber))
+                {
+                    SimStack.Push(stackNumber);
+                }
+                else
+                {
+                    throw new Exception("Tried to duplicate, but there was no number on the stack to duplicate.");
+                }
 
-                WSFile.FileContents += $"[DuplicateItem][{++commandCount}]{IMP}{command}";
+                WSFile.FileContents += $"[DuplicateItem][{++commandCount}]{IMP}{CMD_DUPLICATE}";
             }
 
             internal static void CopyNthItem(int locationInStack)
             {
                 assertInitialized();
 
-                string command = "\t ";
                 string parameter = getWsBitString(locationInStack);
 
-                WSFile.FileContents += $"[CopyNthItem][{++commandCount}]{IMP}{command}{parameter}\n";
+                WSFile.FileContents += $"[CopyNthItem][{++commandCount}]{IMP}{CMD_COPYNTH}{parameter}\n";
             }
 
             internal static void SwapTopItems()
@@ -172,8 +282,19 @@ namespace wspace
                     Stack.PushNumber(right ?? 0);
                     Stack.PushNumber(left ?? 0);
                 }
+                else if(SimStack.Count < 2)
+                {
+                    throw new Exception($"Tried to add the top two items on the stack, but there were not enough items. Only [{SimStack.Count}] item{(SimStack.Count == 0 ? "s" : "")} on the stack.");
+                }
+                else
+                {
+                    left = SimStack.Pop();
+                    right = SimStack.Pop();
 
-                WSFile.FileContents += $"[Addition][{++commandCount}]{IMP}{command}";
+                    SimStack.Push(left ?? 0 + right ?? 0);
+
+                    WSFile.FileContents += $"[Addition][{++commandCount}]{IMP}{command}";
+                }
             }
 
             internal static void Division()
@@ -203,7 +324,15 @@ namespace wspace
 
                 string command = " \t";
 
-                WSFile.FileContents += $"[Subtraction][{++commandCount}]{IMP}{command}";
+                if(SimStack.Count < 2)
+                {
+                    throw new Exception("Not enough items on the stack to subtract.");
+                }
+                else
+                {
+                    SimStack.Push(SimStack.Pop() - SimStack.Pop());
+                    WSFile.FileContents += $"[Subtraction][{++commandCount}]{IMP}{command}";
+                }
             }
         }
 
@@ -300,7 +429,14 @@ namespace wspace
                 string command = "\t\t";
                 string parameter = generateLabelString(labelName);
 
-                WSFile.FileContents += $"[JumpToLabelIfNegative][{++commandCount}]{IMP}{command}{parameter}\n";
+                if(SimStack.Count > 0)
+                {
+                    WSFile.FileContents += $"[JumpToLabelIfNegative][{++commandCount}]{IMP}{command}{parameter}\n";
+                }
+                else
+                {
+                    throw new Exception("No number on the stack to check if negative. Have you forgotten to duplicate the stack?");
+                }
             }
 
             internal static void JumpToLabelIfZero(string labelName)
@@ -310,7 +446,15 @@ namespace wspace
                 string command = "\t ";
                 string parameter = generateLabelString(labelName);
 
-                WSFile.FileContents += $"[JumpToLabelIfZero][{++commandCount}]{IMP}{command}{parameter}\n";
+                if(SimStack.Count > 0)
+                {
+                    SimStack.Pop();
+                    WSFile.FileContents += $"[JumpToLabelIfZero][{++commandCount}]{IMP}{command}{parameter}\n";
+                }
+                else
+                {
+                    throw new Exception("No number on the stack to check if zero. Have you forgotten to duplicate the stack?");
+                }
             }
         }
 
@@ -328,12 +472,20 @@ namespace wspace
 
                 string command = " \t";
 
-                wSFile.FileContents += $"[OutputNumber][{++commandCount}]{IMP}{command}";
-
-                if (withNewLine)
+                if(SimStack.Count > 0)
                 {
-                    Stack.PushNumber(10);
-                    OutputCharacter(false);
+                    SimStack.Pop();
+                    wSFile.FileContents += $"[OutputNumber][{++commandCount}]{IMP}{command}";
+
+                    if (withNewLine)
+                    {
+                        Stack.PushNumber(10);
+                        OutputCharacter(false);
+                    }
+                }
+                else
+                {
+                    throw new Exception("No number on the stack to output.");
                 }
             }
             
@@ -347,12 +499,19 @@ namespace wspace
 
                 string command = "  ";
 
-                wSFile.FileContents += $"[OutputCharacter][{++commandCount}]{IMP}{command}";
-
-                if (withNewLine)
+                if(SimStack.Count > 0)
                 {
-                    Stack.PushNumber(10);
-                    OutputCharacter(false);
+                    wSFile.FileContents += $"[OutputCharacter][{++commandCount}]{IMP}{command}";
+
+                    if (withNewLine)
+                    {
+                        Stack.PushNumber(10);
+                        OutputCharacter(false);
+                    }
+                }
+                else
+                {
+                    throw new Exception("No character on the stack to output.");
                 }
             }
 
